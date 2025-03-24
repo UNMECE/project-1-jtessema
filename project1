@@ -1,0 +1,50 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+
+struct _capacitor {
+    double *time;       
+    double *voltage;    
+    double *current;    
+    double C;           
+};
+
+typedef struct _capacitor Capacitor;
+
+int main() {
+    const double dt = 1e-10;          
+    const double final_time = 5e-6;   
+    const int num_steps = 50000;      
+    const double R = 1000;            
+    const double C = 100e-12;         
+    const double I_const = 1e-2;      
+    const double V0 = 10.0;           
+
+    Capacitor cap;
+    cap.C = C;
+    cap.time = new double[num_steps];
+    cap.voltage = new double[num_steps];
+    cap.current = new double[num_steps];
+
+    cap.time[0] = 0.0;
+    cap.voltage[0] = V0;
+    cap.current[0] = I_const;
+
+    for (int t = 1; t < num_steps; t++) {
+        cap.time[t] = t * dt;
+        cap.voltage[t] = cap.voltage[t - 1] + (cap.current[t - 1] * dt / C);
+        cap.current[t] = cap.current[t - 1] - (cap.current[t - 1] * R * C * dt);
+
+        if (t % 200 == 0) {
+            std::cout << "Time: " << std::scientific << cap.time[t]
+                      << " s, Voltage: " << cap.voltage[t]
+                      << " V, Current: " << cap.current[t] << " A" << std::endl;
+        }
+    }
+
+    delete[] cap.time;
+    delete[] cap.voltage;
+    delete[] cap.current;
+
+    return 0;
+}
